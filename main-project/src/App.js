@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Redirect, Switch } from 'react-router-dom';
 
+import Auth from './user/pages/Auth';
 import UserPlaces from './places/pages/UserPlaces';
 import Users from './user/pages/Users';
 import NewPlace from './places/pages/NewPlace';
@@ -24,6 +25,9 @@ function App() {
             </Route>
             <Route path='/places/:placeId'> 
               <UpdatePlace />
+            </Route>
+            <Route>
+              <Auth path='auth' />
             </Route>
             <Redirect to='/' />
           </Switch>

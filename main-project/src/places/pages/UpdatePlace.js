@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
+import Card from '../../shared/components/UIElements/Card';
 import { useForm } from '../../shared/hooks/form-hook';
 import { VALIDATOR_REQUIRE, VALIDATOR_MINLENGTH} from '../../shared/utils/validators';
 import Input from '../../shared/components/FormElements/Input';
@@ -22,7 +23,7 @@ const DUMMY_PLACES = [
     },
     {
         id: 'p2',
-        title: 'Empire State Building',
+        title: 'Emp. State Building',
         description: 'Cool Skyscraper',
         imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Empire_State_Building_%28aerial_view%29.jpg/800px-Empire_State_Building_%28aerial_view%29.jpg',
         address: '20 W 34th St, New York, NY 10001',
@@ -35,20 +36,38 @@ const DUMMY_PLACES = [
 ]
 
 const UpdatePlace = () => {
+    const [isLoading, setIsLoading] = useState(true);
     const placeId = useParams().placeId // .placeId because of our dynamic route in paths
+
+    const [formState, inputHandler, setFormData] = useForm({
+        title: {
+            value: '',
+            isValid: false
+        },
+        description: {
+            value: '',
+            isValid: false
+        },
+    }, false);
 
     const identifiedPlace = DUMMY_PLACES.find(p => p.id === placeId);
 
-    const [formState, inputHandler] = useForm({
-        title: {
-            value: identifiedPlace.title,
-            isValid: true
-        },
-        description: {
-            value: identifiedPlace.description,
-            isValid: true
-        },
-    }, true);
+    useEffect(() => {
+        if (identifiedPlace) {
+            setFormData({
+                title: {
+                    value: identifiedPlace.title,
+                    isValid: true
+                },
+                description: {
+                    value: identifiedPlace.description,
+                    isValid: true
+                },
+            }, true);
+        };
+        setIsLoading(false);
+    
+    }, [setFormData, identifiedPlace]);
 
     const placeUpdateSubmitHandler = (event) => {
         event.preventDefault();
@@ -59,11 +78,21 @@ const UpdatePlace = () => {
     if (!identifiedPlace) {
         return (
             <div className='center'>
-                <h2> Could not find place</h2>
+                <Card>
+                    <h2> Could not find place</h2>
+                </Card>
             </div>
         )
     }
 
+    if (isLoading) {
+        return (
+            <div className='center'>
+                <h2> Loading.. </h2>
+            </div>
+        )
+
+    }
     return (
         <form className='place-form' onSubmit={placeUpdateSubmitHandler}>
             <Input 

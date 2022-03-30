@@ -5,6 +5,8 @@ const placesRoutes = require('./routes/places-routes');
 
 const app = express();
 
+app.use(bodyParser.json()); // location of this is important, top down middleware
+
 app.use('/api/places', placesRoutes,);
 
 app.use((error, req, res, next) => { // 4 parameters = express treats as special middleware errorhandling func, only executed on reqs with an error thrown

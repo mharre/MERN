@@ -29,19 +29,19 @@ const getPlaceById = (req, res, next) => { // path should only be what would tri
     res.json({place}); // takes any data that can be converted to valid json. obj, array, num, bool, str etc 
 };
 
-const getPlaceByUserId =  (req, res, next) => { 
+const getPlacesByUserId =  (req, res, next) => { 
     const userId = req.params.uid 
-    const place = DUMMY_PLACES.find(p => {
+    const places = DUMMY_PLACES.filter(p => { // filter gives all results
         return p.creator == userId
     });
 
-    if (!place) {
+    if (!places || places.length === 0) {
         return next(
-            new HttpError('Could not find a place for the provided user id.', 404) //next if we are running an async function
+            new HttpError('Could not find places for the provided user id.', 404) //next if we are running an async function
         ); 
     }
 
-    res.json({place}); 
+    res.json({places}); 
 };
 
 const createPlace = (req, res, next) => {
@@ -86,7 +86,7 @@ const deletePlace = (req, res, next) => {
 };
 
 exports.getPlaceById = getPlaceById;
-exports.getPlaceByUserId = getPlaceByUserId;
+exports.getPlacesByUserId = getPlacesByUserId;
 // both will be bundled into 1 object, express calls function for us
 exports.createPlace = createPlace;
 exports.updatePlace = updatePlace;

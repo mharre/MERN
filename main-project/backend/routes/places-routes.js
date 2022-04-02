@@ -1,4 +1,6 @@
 const express = require('express');
+const { check } = require('express-validator');
+// check returns new middleware configured for our validation requirements
 
 const placesControllers = require('../controllers/places-controller');
 
@@ -8,9 +10,23 @@ router.get('/:pid', placesControllers.getPlaceById);
 
 router.get('/user/:uid', placesControllers.getPlacesByUserId);
 
-router.post('/', placesControllers.createPlace);
+router.post('/',
+    [
+        check('title').not().isEmpty(),
+        check('description').isLength({min: 5}),
+        check('address').not().isEmpty()
+    ],
+    placesControllers.createPlace
+);
+//check takes the name of the field you want to have validation on
 
-router.patch('/:pid', placesControllers.updatePlace); // does not clash with above because it is only for patch and not a get
+router.patch('/:pid', // does not clash with above because it is only for patch and not a get
+    [
+        check('title').not().isEmpty(),
+        check('description').isLength({min: 5})
+    ],
+    placesControllers.updatePlace
+); 
 
 router.delete('/:pid', placesControllers.deletePlace);
 

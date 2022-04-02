@@ -1,6 +1,8 @@
 const uuid = require('uuid');
+const { validationResult } = require('express-validator');
 
 const HttpError = require('../models/http-error');
+const getCoordsForAddress = require('../util/location');
 
 let DUMMY_PLACES = [ //let so we are allowed to delete, const = unchangeable 
     {
@@ -44,10 +46,23 @@ const getPlacesByUserId =  (req, res, next) => {
     res.json({places}); 
 };
 
-const createPlace = (req, res, next) => {
+const createPlace = async (req, res, next) => {
+    const errors = validationResult(req); //always put this at the beginning
+    if (!errors.isEmpty()) {
+        //console.log(errors)
+        return next(new HttpError('Invalid inputs passed, please check your data', 422)); //next due to async code
+    }
+
     // we expect data in the body due to it being a post request
-    const { title, description, coordinates, address, creator } = req.body; //obj destructuring to grab what we want
-    
+    const { title, description, address, creator } = req.body; //obj destructuring to grab what we want
+
+    let coordinates;
+    try {
+        coordinates = await getCoordsForAddress(address);
+    } catch(error) {
+        return next(error); //return error just to quit execution
+    }
+
     const createdPlace = {
         id: uuid.v4(),
         title,
@@ -64,6 +79,11 @@ const createPlace = (req, res, next) => {
 };
 
 const updatePlace = (req, res, next) => {
+    const errors = validationResult(req); 
+    if (!errors.isEmpty()) {
+        throw new HttpError('Invalid inputs passed, please check your data', 422);
+    }
+
     const { title, description } = req.body;
     const placeId = req.params.pid;
     
@@ -80,6 +100,9 @@ const updatePlace = (req, res, next) => {
 
 const deletePlace = (req, res, next) => {
     const placeId = req.params.pid;
+    if (!DUMMY_PLACES.find(p => p.id ==placeId)) {
+        throw new HttpError('Could not find a place for that id.', 404);
+    }
 
     DUMMY_PLACES = DUMMY_PLACES.filter(p => p.id !== placeId); // if id's match it will return false, false = dropped from array
     res.status(200).json({message: 'Deleted Successfully'});

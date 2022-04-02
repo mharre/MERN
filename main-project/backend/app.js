@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 
+const usersRoutes = require('./routes/users-routes');
 const placesRoutes = require('./routes/places-routes');
 const HttpError = require('./models/http-error');
 
@@ -8,6 +9,7 @@ const app = express();
 
 app.use(bodyParser.json()); // location of this is important, top down middleware
 
+app.use('/api/users', usersRoutes);
 app.use('/api/places', placesRoutes,);
 
 app.use((res, req, next) => { //idea that this only runs when we don't send a response in any other middle ware above

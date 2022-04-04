@@ -26,7 +26,7 @@ const createProduct = async (req, res, next) => {
 };
 
 const getProducts = async (req, res, next) => {
-    const products = await Product.find(); //with mongoose returns arr by default, also Product = name of export at bottom of product.js, .exec() turn into real promise instead of fake mongo prom
+    const products = await Product.find().exec(); //with mongoose returns arr by default, also Product = name of export at bottom of product.js, .exec() turn into real promise instead of fake mongo prom
     res.json(products);
 };
 

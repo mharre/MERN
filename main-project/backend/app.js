@@ -1,5 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 
 const usersRoutes = require('./routes/users-routes');
 const placesRoutes = require('./routes/places-routes');
@@ -27,4 +28,11 @@ app.use((error, req, res, next) => { // 4 parameters = express treats as special
 
 });
 
-app.listen(5000);
+mongoose
+    .connect('mongodb+srv://matthew:eoUNed4irv7IWuZD@cluster0-mernpractice.z5bhi.mongodb.net/places?retryWrites=true&w=majority')
+    .then(() => {
+        app.listen(5000);
+    })
+    .catch(err => {
+        console.log(err);
+    }) 

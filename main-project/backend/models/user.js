@@ -8,7 +8,7 @@ const userSchema = new Schema({
     email: { type: String, required: true, unique: true}, //speeds up query process by giving it an internal index - DOES NOT make sure email is unique
     password: { type: String, required: true, minlength: 6}, 
     image: { type: String, required: true},
-    places: { type: String, required: true} // will be dynamic later, uniqueId's
+    places: [{ type: mongoose.Types.ObjectId, required: true, ref: 'Place'}]
 });
 
 userSchema.plugin(uniqueValidator);

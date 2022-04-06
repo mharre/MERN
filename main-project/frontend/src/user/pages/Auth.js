@@ -43,11 +43,32 @@ const Auth = () => {
         setIsLoginMode(prevMode => !prevMode); //easy way to invert
     };
 
-    const authSubmitHandler = (event) => {
+    const authSubmitHandler = async (event) => {
         event.preventDefault();
 
-        console.log(formState.inputs);
-        auth.login();
+        if (isLoginMode) {
+
+        } else {
+            try {
+                const response = await fetch('http://localhost:5000/api/users/signup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json' // so our BE knows it's JSON data incoming
+                    },
+                    body: JSON.stringify({
+                        name: formState.inputs.name.value,
+                        email: formState.inputs.email.value,
+                        password: formState.inputs.password.value, //these are the fields we are expecting on the BE
+                    })
+                });
+
+                const responseData = await response.json(); // our BE sends back the created user
+                console.log(responseData)
+            } catch (err) {
+                console.log(err);
+            }
+        }
+        auth.login(); // only runs after our response 
     };
 
     return (

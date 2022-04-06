@@ -1,9 +1,11 @@
 const uuid = require('uuid');
 const { validationResult } = require('express-validator');
+const mongoose = require('mongoose');
 
 const HttpError = require('../models/http-error');
 const getCoordsForAddress = require('../util/location');
 const Place = require('../models/place');
+const User = require('../models/user');
 
 const getPlaceById = async (req, res, next) => { // path should only be what would trigger after the path inside of app.js, so no need to include /api/places/ in this path
     const placeId = req.params.pid // { pid: 'p1' }
@@ -26,23 +28,32 @@ const getPlaceById = async (req, res, next) => { // path should only be what wou
 
 const getPlacesByUserId = async (req, res, next) => { 
     const userId = req.params.uid
-    let places;
+
+    //let places;
+    let userWithPlaces;
     try {
-        places = await Place.find({ creator: userId });
+        //places = await Place.find({ creator: userId });
+        userWithPlaces = await User.findById(userId).populate('places');
     } catch(err) {
         const error = new HttpError('Fetching places failed, try again later', 500)
         return next(error);
     }
 
-    if (!places || places.length === 0) {
+    if (!userWithPlaces || userWithPlaces.length === 0) {
         return next(
-            new HttpError('Could not find places for the provided user id.', 404) //next if we are running an async function
+            new HttpError('Could not find places for the provided user id.', 404)
         ); 
     }
+    
+    //if (!places || places.length === 0) {
+    //    return next(
+    //        new HttpError('Could not find places for the provided user id.', 404)
+    //    ); 
+    //}
 
     //can't use toObject() because mongoose find() returns array
     res.json({ 
-        places: places.map(
+        places: userWithPlaces.places.map(
             p => p.toObject(
                 { getters: true}
             )
@@ -76,8 +87,31 @@ const createPlace = async (req, res, next) => {
         creator 
     });
 
+    let user;
     try {
-        await createdPlace.save();
+        user = await User.findById(creator); //check if ID of logged in user is already existing
+    } catch(err) {
+        const error = new HttpError(
+            'Creating place failed, please try again', 500
+        );
+        return next(error);
+    }
+
+    if (!user) {
+        const error = new HttpError('We could not find user for provided id', 404);
+        return next(error)
+    }
+
+    //console.log(user);
+
+    try { // transactions/sessions. transaction = allow perform multiple operations, they are built on a session so session must come first
+        const sess = await mongoose.startSession(); // once session begins we can start our transtion
+        sess.startTransaction(); // now write what we want to do
+        await createdPlace.save({ session: sess }); // this creates a new place and automatically creates the id because mongodb. now make sure this place is connected to user
+        user.places.push(createdPlace); // mongoose specific .push() method - pushes the connection between the 2 models in which we are referring
+        await user.save({ session: sess});
+        await sess.commitTransaction(); // only at this point is it saved to DB
+
     } catch(err) {
         const error = new HttpError(
             'Creating place failed, please try again', 500
@@ -125,14 +159,24 @@ const deletePlace = async (req, res, next) => {
     const placeId = req.params.pid;
     let place;
     try {
-        place = await Place.findById(placeId);
+        place = await Place.findById(placeId).populate('creator'); //can only use populate if existing connection between collections exists - looking to change info in Users.creator
     } catch(err) {
         const error = new HttpError('Something went wrong, could not find the place', 500);
         return next(error);
     }
 
+    if (!place) {
+        const error = new HttpError('Could not find place for this id', 404);
+        return next(error);
+    }
+
     try {
-       await place.remove(); // to simply remove from DB
+        const sess = await mongoose.startSession();
+        sess.startTransaction();
+        await place.remove({ session: sess }) //we know place exists because we check above if it doesn't 
+        place.creator.places.pull(place); //mongoose specific pull - pull that specific place from the places array in the creator
+        await place.creator.save({ session: sess }) // we are allowed to use pull because populate gave us access to the full object linked to that place
+        await sess.commitTransaction(); 
     } catch(err) {
         const error = new HttpError('Something went wrong, could not delete the place', 500);
         return next(error);

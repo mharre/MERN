@@ -14,7 +14,7 @@ const UsersList = props => {
       </div>
     );
   }
-
+  //changed placeCount from user.places to user.places.length because we get back an array on our BE
   return (
     <ul className="users-list">
       {props.items.map(user => (
@@ -23,7 +23,7 @@ const UsersList = props => {
           id={user.id}
           image={user.image}
           name={user.name}
-          placeCount={user.places}
+          placeCount={user.places.length}
         />
       ))}
     </ul>

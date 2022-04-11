@@ -6,7 +6,7 @@ import LoadingSpinner from '../../shared/components/UIElements/LoadingSpinner';
 import { useHttpClient } from '../../shared/hooks/http-hook';
 import PlaceList from '../components/PlaceList';
 
-const UserPlaces = async () => {
+const UserPlaces = () => {
     const [loadedPlaces, setLoadedPlaces] = useState();
 
     const userId = useParams().userId;
@@ -16,12 +16,10 @@ const UserPlaces = async () => {
     useEffect(() => {
         const fetchUserPlacesById = async () => {
             try {
-                const responseData = await sendRequest(`http://localhost:5000/user/${userId}`); // check BE to see what we recieve back - we except places key
-                console.log(responseData.places);
+                const responseData = await sendRequest(`http://localhost:5000/api/places/user/${userId}`); // check BE to see what we recieve back - we except places key
                 setLoadedPlaces(responseData.places);
-            } catch(err) {
-                console.log(err)
-            }
+                //console.log(responseData)
+            } catch(err) {}
 
         };
         fetchUserPlacesById();
@@ -37,7 +35,9 @@ const UserPlaces = async () => {
                     <LoadingSpinner />
                 </div>
             )}
-            {!isLoading && loadedPlaces && <PlaceList items={loadedPlaces} />}
+            {!isLoading && loadedPlaces && (
+                <PlaceList items={loadedPlaces} />
+            )}
         </React.Fragment>
     )
 };

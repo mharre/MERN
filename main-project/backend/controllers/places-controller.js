@@ -1,4 +1,4 @@
-const uuid = require('uuid');
+//const uuid = require('uuid');
 const { validationResult } = require('express-validator');
 const mongoose = require('mongoose');
 
@@ -52,13 +52,7 @@ const getPlacesByUserId = async (req, res, next) => {
     //}
 
     //can't use toObject() because mongoose find() returns array
-    res.json({ 
-        places: userWithPlaces.places.map(
-            p => p.toObject(
-                { getters: true}
-            )
-        )
-    }); 
+    res.json({ places: userWithPlaces.places.map(place => place.toObject({ getters: true }))}); 
 };
 
 const createPlace = async (req, res, next) => {

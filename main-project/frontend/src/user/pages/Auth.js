@@ -52,7 +52,7 @@ const Auth = () => {
 
         if (isLoginMode) {
             try {
-                await sendRequest( 
+                const responseData = await sendRequest( 
                     'http://localhost:5000/api/users/login',
                     'POST',
                     JSON.stringify({
@@ -63,11 +63,11 @@ const Auth = () => {
                         'Content-Type': 'application/json' 
                     }, 
                 );
-                auth.login(); 
+                auth.login(responseData.user.id); // on the BE, user key in the object and it's id
             } catch (err) {} //we can leave this empty for this specific request because we are handling everything inside of our custom hook
         } else {
             try {
-                await sendRequest(
+                const responseData = await sendRequest(
                     'http://localhost:5000/api/users/signup',
                     'POST',
                     JSON.stringify({
@@ -79,7 +79,7 @@ const Auth = () => {
                         'Content-Type': 'application/json' // so our BE knows it's JSON data incoming
                     },
                 );
-                auth.login(); // only runs after our response 
+                auth.login(responseData.user.id); 
             } catch (err) {} // leave blank same as above
         }
     };

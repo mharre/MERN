@@ -104,6 +104,10 @@ const createPlace = async (req, res, next) => {
 
     //console.log(user);
 
+    /****************************************************************************************************** 
+    ********** Working with Transactions / Sessions means mongodb cann't create on the fly collections ****
+    *******************************************************************************************************/
+
     try { // transactions/sessions. transaction = allow perform multiple operations, they are built on a session so session must come first
         const sess = await mongoose.startSession(); // once session begins we can start our transtion
         sess.startTransaction(); // now write what we want to do
@@ -113,6 +117,7 @@ const createPlace = async (req, res, next) => {
         await sess.commitTransaction(); // only at this point is it saved to DB
 
     } catch(err) {
+        console.log(err);
         const error = new HttpError(
             'Creating place failed, please try again', 500
         );

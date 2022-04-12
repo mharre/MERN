@@ -23,9 +23,14 @@ const UserPlaces = () => {
 
         };
         fetchUserPlacesById();
-    }, [sendRequest, userId])
+    }, [sendRequest, userId]);
 
-
+    const placeDeletedHandler = (deletedPlaceId) => {
+        //update our loaded places appropriately // only keep places where the id is not equal the deletedPlaceId
+        setLoadedPlaces(prevPlaces =>
+            prevPlaces.filter(place => place.id !== deletedPlaceId )
+        );
+    };
 
     return (
         <React.Fragment>
@@ -36,7 +41,7 @@ const UserPlaces = () => {
                 </div>
             )}
             {!isLoading && loadedPlaces && (
-                <PlaceList items={loadedPlaces} />
+                <PlaceList items={loadedPlaces} onDeletePlace={placeDeletedHandler} />
             )}
         </React.Fragment>
     )

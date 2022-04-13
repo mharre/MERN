@@ -4,6 +4,7 @@ import { useHttpClient } from '../../shared/hooks/http-hook';
 import { AuthContext } from '../../shared/context/auth-context';
 import { useForm } from '../../shared/hooks/form-hook';
 import {VALIDATOR_MINLENGTH, VALIDATOR_EMAIL, VALIDATOR_REQUIRE} from '../../shared/utils/validators';
+import ImageUpload from '../../shared/components/FormElements/ImageUpload';
 import Input from '../../shared/components/FormElements/Input';
 import Button from '../../shared/components/FormElements/Button';
 import Card from '../../shared/components/UIElements/Card';
@@ -33,13 +34,18 @@ const Auth = () => {
         if (!isLoginMode) {
             setFormData({     // coming from signup mode and going into login mode - validity depends on email / password field because of this
                 ...formState.inputs,
-                name: undefined // to "drop" name field
+                name: undefined, // to "drop" name field
+                image: undefined
             }, formState.inputs.email.isValid && formState.inputs.password.isValid); // checking validity of email/pw
         } else { //moving to signup mode
             setFormData({
                 ...formState.inputs, // retain old inputs that might be there
                 name: {
                     value: '',
+                    isValid: false
+                },
+                image: {
+                    value: null, 
                     isValid: false
                 }
             }, false);
@@ -49,6 +55,8 @@ const Auth = () => {
 
     const authSubmitHandler = async (event) => {
         event.preventDefault();
+
+        console.log(formState.inputs);
 
         if (isLoginMode) {
             try {
@@ -103,6 +111,7 @@ const Auth = () => {
                             onInput={inputHandler}
                         />
                     )}
+                    {!isLoginMode && <ImageUpload center id='image' onInput={inputHandler} />}
                     <Input
                         id='email'
                         element='input'

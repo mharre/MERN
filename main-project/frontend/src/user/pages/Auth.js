@@ -56,7 +56,7 @@ const Auth = () => {
     const authSubmitHandler = async (event) => {
         event.preventDefault();
 
-        console.log(formState.inputs);
+        //console.log(formState.inputs);
 
         if (isLoginMode) {
             try {
@@ -75,18 +75,18 @@ const Auth = () => {
             } catch (err) {} //we can leave this empty for this specific request because we are handling everything inside of our custom hook
         } else {
             try {
+                const formData = new FormData(); //sending form data, not json because img is not text (it's binary). formData can send both
+                formData.append('email', formState.inputs.email.value);
+                formData.append('name', formState.inputs.name.value);
+                formData.append('password', formState.inputs.password.value);
+                formData.append('image', formState.inputs.image.value); //key of image because on our backend we are loking for 'image' key (user-routes.js in router.post)
+
                 const responseData = await sendRequest(
                     'http://localhost:5000/api/users/signup',
                     'POST',
-                    JSON.stringify({
-                        name: formState.inputs.name.value,
-                        email: formState.inputs.email.value,
-                        password: formState.inputs.password.value, //these are the fields we are expecting on the BE
-                    }),
-                    {
-                        'Content-Type': 'application/json' // so our BE knows it's JSON data incoming
-                    },
+                    formData, //fetch api automatically sets headers for us with FormData
                 );
+
                 auth.login(responseData.user.id); 
             } catch (err) {} // leave blank same as above
         }

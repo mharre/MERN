@@ -1,3 +1,6 @@
+const fs = require('fs');
+const path = require('path');
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
@@ -9,6 +12,10 @@ const HttpError = require('./models/http-error');
 const app = express();
 
 app.use(bodyParser.json()); // location of this is important, top down middleware
+
+app.use('/uploads/images', express.static( //just return file, don't execute - just return. must contol which files in which folders we must return therefore we need an absolute path
+    path.join('uploads', 'images') // builds path to uploads/images, if there is a request to this specific path the requested image is returned
+));
 
 app.use((req, res, next) => {
     // idea is we don't send response, just add certain headers to the response. when response is sent back from more specific routes (below) it already has these headers attached
@@ -31,6 +38,11 @@ app.use((req, res, next) => { //idea that this only runs when we don't send a re
 }); 
 
 app.use((error, req, res, next) => { // 4 parameters = express treats as special middleware errorhandling func, only executed on reqs with an error thrown
+    if (req.file) { //.file is added to req by multer - if .file we want to delete since this is our general error catching func
+        fs.unlink(req.file.path, (err) => {
+            console.log(err);
+        }); 
+    }
     if (res.headerSent) { // check of respone has been sent
         return next(error);
     }

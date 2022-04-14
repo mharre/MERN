@@ -25,3 +25,6 @@ README.md
 .eslintcache
 package-lock.json
 .next
+**/uploads/images/**.png
+**/uploads/images/**.jpg
+**/uploads/images/**.jpeg

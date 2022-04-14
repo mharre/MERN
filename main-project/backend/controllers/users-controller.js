@@ -21,6 +21,7 @@ const getUsers= async (req, res, next) => {
 };
 
 const signup = async (req, res, next) => {
+    //we need to link img upload with user and a url. also need to roll back in case there is an error so no img upload is saved
     const errors = validationResult(req); 
     if (!errors.isEmpty()) {
         return next(new HttpError('Invalid inputs passed, please check your data', 422));
@@ -44,7 +45,7 @@ const signup = async (req, res, next) => {
     const createdUser = new User({
         name,
         email,
-        image: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&dpr=3&h=750&w=1260',
+        image: req.file.path,
         password,
         places: []
     });

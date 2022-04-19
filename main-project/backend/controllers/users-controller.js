@@ -131,10 +131,11 @@ const loginUser = async (req, res, next) => {
     }
 
 
-    res.status(200).json({
-        message: 'Logged in!', 
-        user: existingUser.toObject({ getters: true })
-    })
+    res.json({ //200 is automatic, so we can exclude it
+        userId: existingUser.id,
+        email: existingUser.email,
+        token: token
+    });
 };
 
 exports.getUsers= getUsers;

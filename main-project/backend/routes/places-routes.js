@@ -4,12 +4,15 @@ const { check } = require('express-validator');
 
 const placesControllers = require('../controllers/places-controller');
 const fileUpload = require('../middleware/file-upload');
+const checkAuth = require('../middleware/check-auth');
 
 const router = express.Router(); //gives us special object which w can register middleware and can export our configured router, import in app and register as 1 single middlewar
 
 router.get('/:pid', placesControllers.getPlaceById);
 
 router.get('/user/:uid', placesControllers.getPlacesByUserId);
+
+router.use(checkAuth);
 
 router.post('/',
     fileUpload.single('image'),

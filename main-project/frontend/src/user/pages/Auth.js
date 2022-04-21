@@ -71,7 +71,7 @@ const Auth = () => {
                         'Content-Type': 'application/json' 
                     }, 
                 );
-                auth.login(responseData.user.id); // on the BE, user key in the object and it's id
+                auth.login(responseData.userId, responseData.token); // on the BE, user key in the object and it's id
             } catch (err) {} //we can leave this empty for this specific request because we are handling everything inside of our custom hook
         } else {
             try {
@@ -87,7 +87,7 @@ const Auth = () => {
                     formData, //fetch api automatically sets headers for us with FormData
                 );
 
-                auth.login(responseData.user.id); 
+                auth.login(responseData.userId, responseData.token); 
             } catch (err) {} // leave blank same as above
         }
     };

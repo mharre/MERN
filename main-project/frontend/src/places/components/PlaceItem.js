@@ -34,7 +34,11 @@ const PlaceItem = (props) => {
         try {
             await sendRequest(
                 `http://localhost:5000/api/places/${props.id}`,
-                'DELETE',
+                'DELETE', 
+                null,
+                {
+                    Authorization: `Bearer ${auth.token}`
+                }
             );
             // reload page - but UserPlaces -> PlaceList -> PlaceItem. inside UserPlaces we have loaded places which must be changed to reflect this deletion
             props.onDelete(props.id);

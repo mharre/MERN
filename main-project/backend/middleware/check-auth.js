@@ -3,6 +3,10 @@ const jwt = require('jsonwebtoken');
 const HttpError = require("../models/http-error");
 
 module.exports = (req, res, next) => {
+    if (req.method === 'OPTIONS') { //default browswer behavior, send OPTIONS req to test if others are allowed
+        return next();
+    }
+
     //.headers accessable via express, don't want token in body because not all routes that need protection will have a body, we send token in headers instead
     //check app.js and authorization header is set, case insensitive
     try {

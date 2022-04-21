@@ -131,11 +131,7 @@ const loginUser = async (req, res, next) => {
     }
 
 
-    res.json({ //200 is automatic, so we can exclude it
-        userId: existingUser.id,
-        email: existingUser.email,
-        token: token
-    });
+    res.json({ userId: existingUser.id, email: existingUser.email, token: token });
 };
 
 exports.getUsers= getUsers;

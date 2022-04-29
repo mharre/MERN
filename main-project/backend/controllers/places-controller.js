@@ -143,6 +143,11 @@ const updatePlace = async (req, res, next) => {
         return next(error);
     }
 
+    if (place.creator.toString() !== req.userData.userId) { //toString because creator is a special mongoose ID which isn't a string so we convert
+        const error = new HttpError('You are not allowed to edit this place', 401)
+        return next(error);
+    }
+
     place.title = title;
     place.description = description;
 
@@ -168,6 +173,11 @@ const deletePlace = async (req, res, next) => {
 
     if (!place) {
         const error = new HttpError('Could not find place for this id', 404);
+        return next(error);
+    }
+
+    if ( place.creator.id !== req.userData.userId ) { //because of populate we can just access creator.id immediately 
+        const error = new HttpError('You are not allowed to edit this place', 401)
         return next(error);
     }
 

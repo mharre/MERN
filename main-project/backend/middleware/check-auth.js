@@ -19,7 +19,7 @@ module.exports = (req, res, next) => {
         req.userData = { userId: decodedToken.userId }; //adding data to req, everyone after can now use userId
         next(); //when we reach this, we know they are authenticated and can call next so they can reach any other route in the middleware
     } catch(err) {
-        const error = new HttpError('Authentication Failed', 401);
+        const error = new HttpError('Authentication Failed', 403);
         return next(error);
     }
 

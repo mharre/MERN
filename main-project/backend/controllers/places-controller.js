@@ -65,7 +65,7 @@ const createPlace = async (req, res, next) => {
     }
 
     // we expect data in the body due to it being a post request
-    const { title, description, address, creator } = req.body; //obj destructuring to grab what we want
+    const { title, description, address } = req.body; //obj destructuring to grab what we want
 
     let coordinates;
     try {
@@ -80,12 +80,12 @@ const createPlace = async (req, res, next) => {
         address,
         location: coordinates,
         image: req.file.path,
-        creator 
+        creator: req.userData.userId
     });
 
     let user;
     try {
-        user = await User.findById(creator); //check if ID of logged in user is already existing
+        user = await User.findById(req.userData.userId); //check if ID of logged in user is already existing
     } catch(err) {
         const error = new HttpError(
             'Creating place failed, please try again', 500

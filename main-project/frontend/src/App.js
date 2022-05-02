@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Redirect, Switch } from 'react-router-dom';
 
 import { AuthContext } from './shared/context/auth-context';
@@ -13,15 +13,33 @@ function App() {
   const [token, setToken] = useState(false);
   const [userId, setUserId] = useState(false);
 
-  const login = useCallback((uid, token) => {
+  const login = useCallback((uid, token, expirationDate) => {
     setToken(token);
+    const tokenExpirationDate = expirationDate || new Date(
+      new Date().getTime() + 1000 * 60 * 60); //second new Date call is for getting current date. add 1 second -> conver to minute -> hour
+    localStorage.setItem(
+      'userData',
+      JSON.stringify({ userId: uid, //way of storing obj in localStorage because JSON just turns object into text that looks like object
+        token: token,
+        expiration: tokenExpirationDate.toISOString()
+      })
+    ); 
     setUserId(uid);
   }, [])
 
   const logout = useCallback(() => {
     setToken(null);
     setUserId(null);
+    localStorage.removeItem('userData');
   }, [])
+
+  useEffect(() => {
+    const storedData = JSON.parse(localStorage.getItem('userData')); // parse to turn back into JS obj
+    if (storedData && storedData.token && new Date(storedData.expiration) > new Date()) { //if > that means expiration date is still in the future therefore valid token
+      login(storedData.userId, storedData.token, new Date(storedData.expiration));
+    }
+  }, [login]);
+
 
   let routes;
 
